@@ -1,0 +1,69 @@
+{"en_us": {
+  "gui_menu_file": "Files",
+  "gui_open_file": "Open File",
+  "gui_save_file": "Save File",
+  "gui_save_as_file": "Save as...",
+  "gui_run_python_menu": "Run",
+  "set_python_path": "Please Set Python Path",
+  "gui_clipboard_get": "Paste",
+  "gui_run_python": "Run in New Window",
+  "gui_run_and_save_python": "Run and Save File",
+  "gui_exit_pytoka": "Exit",
+  "gui_setting": "Settings",
+  "gui_about": "About",
+  "window_setup": {
+    "title": "Settings",
+    "path_notebook": "Path",
+    "language_notebook": "Languages",
+    "language_zh_cn": "简体中文",
+    "language_en_us": "English",
+    "message_info_restart": "Please restart PyToka to apply"
+  },
+  "window_about": {
+    "about_title": "About...",
+    "about_version": "0.0.2-rc1",
+    "about_author": ["是真的Win12Home","Win12_Home"],
+    "about_license": "Mozilla Public License v2.0"
+  },
+  "gui_info_menu": "Info",
+  "gui_info_words": "Text Length",
+  "message_info_words": "Text Length is",
+  "message_info_kilometers": ",Is have",
+  "message_info_title": "Information",
+  "message_warning_filewarning": "Not a file",
+  "done": "Done"
+},"zh_cn": {
+  "gui_menu_file": "文件",
+  "gui_open_file": "打开文件",
+  "gui_save_file": "保存文件",
+  "gui_save_as_file": "保存到...",
+  "gui_run_python_menu": "运行",
+  "set_python_path": "请设置Python路径",
+  "gui_clipboard_get": "粘贴",
+  "gui_run_python": "运行在新窗口",
+  "gui_run_and_save_python": "运行并保存",
+  "gui_exit_pytoka": "退出",
+  "gui_setting": "设置",
+  "gui_about": "关于",
+  "window_setup": {
+    "title": "设置",
+    "path_notebook": "路径",
+    "language_notebook": "语言",
+    "language_zh_cn": "简体中文",
+    "language_en_us": "English",
+    "message_info_restart": "请重新启动PyToka"
+  },
+  "window_about": {
+    "about_title": "关于...",
+    "about_version": "0.0.2-rc1",
+    "about_author": ["是真的Win12Home","Win12_Home"],
+    "about_license": "Mozilla Public License v2.0"
+  },
+  "gui_info_menu": "消息",
+  "gui_info_words": "文字长度",
+  "message_info_words": "文字长度为",
+  "message_info_kilometers": "，有",
+  "message_info_title": "消息",
+  "message_warning_filewarning": "不是一个文件",
+  "done": "确定"
+}}
