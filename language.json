@@ -17,11 +17,13 @@
     "language_notebook": "Languages",
     "language_zh_cn": "简体中文",
     "language_en_us": "English",
+    "theme_notebook": "Themes",
+    "theme_edittext": "Editor Text",
     "message_info_restart": "Please restart PyToka to apply"
   },
   "window_about": {
     "about_title": "About...",
-    "about_version": "0.0.2-rc1",
+    "about_version": "0.0.2",
     "about_author": ["是真的Win12Home","Win12_Home"],
     "about_license": "Mozilla Public License v2.0"
   },
@@ -51,11 +53,13 @@
     "language_notebook": "语言",
     "language_zh_cn": "简体中文",
     "language_en_us": "English",
+    "theme_notebook": "主题",
+    "theme_edittext": "编辑器文本",
     "message_info_restart": "请重新启动PyToka"
   },
   "window_about": {
     "about_title": "关于...",
-    "about_version": "0.0.2-rc1",
+    "about_version": "0.0.2",
     "about_author": ["是真的Win12Home","Win12_Home"],
     "about_license": "Mozilla Public License v2.0"
   },

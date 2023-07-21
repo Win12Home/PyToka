@@ -4,8 +4,47 @@ This is a Python Editor.
 Made by 是真的Win12Home
 Free and Lite.
 """
-#*~* coding=utf-8 *~*
-from ttkbootstrap import *
+# *~* coding=utf-8 *~*
+from json import loads, dump
+def initialize():
+    global k, p, language
+    try:
+        with open("settings.json", "r", encoding="utf-8") as f:
+            p = loads(f.read())
+        if p["info"]["PyToka_name"] != "PyToka v0.0.2":
+            with open("settings.json", "w", encoding="utf-8") as f:
+                p = {
+                    "info": {"PyToka_name": "PyToka v0.0.2", "language_name": "en_us", "pip_name": "pip"},
+                    "gui": {"window_size": "1280x768+100+50"},
+                    "run": {"run_command": "PyToka_console.exe", "python_prompt": "pykw"},
+                    "theme": {"edit_font": "Courier New", "win11-theme": False}
+                }
+                dump(p, f, ensure_ascii=False)
+    except IOError:
+        with open("settings.json", "w", encoding="utf-8") as f:
+            p = {
+                "info": {"PyToka_name": "PyToka v0.0.2", "language_name": "en_us", "pip_name": "pip"},
+                "gui": {"window_size": "1280x768+100+50"},
+                "run": {"run_command": "PyToka_console.exe", "python_prompt": "pykw"},
+                "theme": {"edit_font": "Courier New", "win11-theme": False}
+            }
+            dump(p, f, ensure_ascii=False)
+
+    with open("language.json", "r", encoding="utf-8") as f:
+        language = loads(f.read())
+    k = language[p["info"]["language_name"]]
+    return p, k
+
+k = initialize()
+json_data = k[0]
+my_language = k[1]
+if json_data["theme"]["win11-theme"]:
+    from tkinter import *
+    from tkinter.ttk import *
+    from sv_ttk import *
+    from tkinter import Tk as Window
+else:
+    from ttkbootstrap import *
 from tkinter.messagebox import showinfo, showerror
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter import Label
@@ -13,7 +52,6 @@ from tkinter.font import Font
 from subprocess import Popen
 from PIL import ImageTk, Image
 from ctypes import windll
-from json import loads, dump
 from idlelib.percolator import Percolator
 from idlelib.colorizer import ColorDelegator, color_config
 from threading import RLock, Thread
@@ -29,31 +67,6 @@ def PNGImage(file: str = ...):
 k = None
 p = None
 language = None
-
-
-def initialize():
-    global k, p, language
-    try:
-        with open("settings.json", "r", encoding="utf-8") as f:
-            p = loads(f.read())
-    except IOError:
-        with open("settings.json", "w", encoding="utf-8") as f:
-            p = {
-                "info": {"PyToka_name": "PyToka v0.0.2-rc1", "language_name": "en_us", "pip_name": "pip"},
-                "gui": {"window_size": "1280x768+100+50"},
-                "run": {"run_command": "PyToka_console.exe", "python_prompt": "pykw"}
-            }
-            dump(p, f, ensure_ascii=False)
-
-    with open("language.json", "r", encoding="utf-8") as f:
-        language = loads(f.read())
-    k = language[p["info"]["language_name"]]
-    return p, k
-
-
-k = initialize()
-json_data = k[0]
-my_language = k[1]
 
 
 def _set_python(root, path):
@@ -75,7 +88,11 @@ class PyToka(Window):
         self.pythonfile = None
         self.saved = False
         global json_data
-        super().__init__(themename="yeti")
+        if json_data["theme"]["win11-theme"] == False:
+            super().__init__(themename="yeti")
+        else:
+            super().__init__()
+            use_light_theme()
         self.i = None
         self.wm_geometry(json_data["gui"]["window_size"])
         self.wm_title("PyToka")
@@ -83,14 +100,15 @@ class PyToka(Window):
         self.scrollbar = Scrollbar(self)
         self.scrollbar.pack(fill=Y, side=RIGHT)
         self.scrollbar.configure(command=self.scroll)
-        self.line_text = Text(self, width=7, height=1600, spacing3=6,
-                              bg="#DCDCDC", bd=0, takefocus=0, state="disabled",
-                              cursor="arrow", font=("Courier New", 11), spacing1=2, spacing2=7)
+        self.line_text = Text(self, width=7, height=1600, spacing3=6, bd=0, takefocus=0, state="disabled",
+                              cursor="arrow", font=(json_data["theme"]["edit_font"], 11), spacing1=2, spacing2=7)
         self.line_text.pack(side="left", expand=NO)
-        self.text = Text(self, height=114514, width=1919810, font=("Courier New", 11), spacing3=6, spacing1=2,
+        self.text = Text(self, height=114514, width=1919810, font=(json_data["theme"]["edit_font"], 11), spacing3=6,
+                         spacing1=2,
                          spacing2=7, wrap=NONE)
         self.text.pack(side="left", fill="both")
         self.text.bind("<Return>", self.enter)
+
         self.text.insert(END,
                          "#Define Function 'hello'\ndef hello(name):\n    print('Hello,{pyname}.'.format(pyname=name))\n\nhello('PyToka') #Print Hello,PyToka\n\n#You can write more code in there")
         self.text.configure(yscrollcommand=self.scrollbar.set)
@@ -172,6 +190,7 @@ class PyToka(Window):
         self.settings.settings_path.pack()
         self.settings.settings_path_entry = Entry(self.settings.settings_path)
         self.settings.settings_path_entry.pack(fill=X)
+        self.settings.settings_path_entry.insert(END, json_data["run"]["python_prompt"])
         self.settings.settings_path_done = Button(self.settings.settings_path, text=realstring["done"],
                                                   command=lambda: self._window_settings_edit_json_to_setup_some_value(
                                                       "run",
@@ -181,10 +200,53 @@ class PyToka(Window):
                                                        mystring["message_info_restart"]]
                                                   ))
         self.settings.settings_path_done.pack()
+        self.settings.settings_theme = Frame(self.settings.settings_notebook)
+        self.settings.settings_theme.pack()
+        self.settings.settings_theme_textedit = Label(self.settings.settings_theme, text=mystring["theme_edittext"],
+                                                      font=("Microsoft Jhenghei", 16))
+        self.settings.settings_theme_textedit.pack()
+        self.settings.settings_theme_textedit_entry = Entry(self.settings.settings_theme)
+        self.settings.settings_theme_textedit_entry.pack(fill=X)
+        self.settings.settings_theme_textedit_entry.insert(END, json_data["theme"]["edit_font"])
+        self.settings.intvalue = IntVar()
+        self.settings.settings_theme_win11theme = Label(self.settings.settings_theme, text="Windows 11 Theme",
+                                                        font=("Microsoft Jhenghei", 16))
+        self.settings.settings_theme_win11theme.pack()
+        self.settings.value = [
+            ("Use", 1),
+            ("Don`t Use", 0)
+        ]
+        for self.settings.myvalue, self.settings.myint in self.settings.value:
+            self.settings.radio = Radiobutton(self.settings.settings_theme, text=self.settings.myvalue,
+                                              variable=self.settings.intvalue, value=self.settings.myint)
+            self.settings.radio.pack()
+        if json_data["theme"]["win11-theme"] == True:
+            self.settings.intvalue.set(1)
+        else:
+            self.settings.intvalue.set(0)
+        self.settings.settings_theme_done = Button(self.settings.settings_theme, text=realstring["done"],
+                                                   command=lambda: self._theme_settings(
+                                                       self.settings.settings_theme_textedit_entry.get(),
+                                                       self.settings.intvalue.get())
+                                                   )
+        self.settings.settings_theme_done.pack()
         self.settings.settings_notebook.pack(fill=BOTH, padx=5, pady=2, expand=True)
         self.settings.settings_notebook.add(self.settings.settings_language, text=mystring["language_notebook"])
         self.settings.settings_notebook.add(self.settings.settings_path, text=mystring["path_notebook"])
+        self.settings.settings_notebook.add(self.settings.settings_theme, text=mystring["theme_notebook"])
         self.settings.wm_resizable(0, 0)
+
+    def _theme_settings(self, value1, value2):
+        global json_data
+        if value2 == 1:
+            value2 = True
+        else:
+            value2 = False
+        json_data["theme"]["win11-theme"] = value2
+        json_data["theme"]["edit_font"] = value1
+        with open("settings.json", "w") as f:
+            dump(json_data, f, ensure_ascii=False)
+        self.settings.destroy()
 
     def _window_settings_edit_json_to_setup_some_value(self, name1, name2, newvalue, stringlist):
         global json_data
@@ -342,11 +404,12 @@ class PyToka(Window):
 
     def SaveAsFile(self, text, mystring):
         # Awwman
-        self.saved = True
-        self.wm_title("PyToka-{}".format(self.pythonfile))
+
         filename = asksaveasfilename(filetypes=[("Python File", "*.py"), ("Python Stage Files", "*.pyw")],
                                      title=mystring["message_info_title"])
         if filename:
+            self.saved = True
+            self.wm_title("PyToka-{}".format(self.pythonfile))
             self.pythonfile = filename
             self.wm_title("PyToka-{}".format(self.pythonfile))
             with open(r"{}".format(filename), "w+", encoding="utf-8") as f:
@@ -356,20 +419,23 @@ class PyToka(Window):
 
     def SaveFile(self, text, mystring):
         # Awwman
-        self.saved = True
-        self.wm_title("PyToka-{}".format(self.pythonfile))
+
         if self.pythonfile is None:
             self.SaveAsFile(text, mystring)
         else:
+            self.saved = True
+            self.wm_title("PyToka-{}".format(self.pythonfile))
             with open(r"{}".format(self.pythonfile), "w+", encoding="utf-8") as f:
                 f.write(text)
 
     def runcommand(self, text, pypath):
-        with open(r"PyRun.py", "w", encoding="utf-8") as f:
-            f.write("from ctypes import OleDLL\nOleDLL('shcore').SetProcessDpiAwareness(1)\n{}".format(text))
-        with open(r"start.bat", "w", encoding="utf-8") as f:
-            f.write("@echo off\ntitle PyToka-Console\n{} PyRun.py\npause\nexit".format(pypath))
-        Popen(r"start start.bat", shell=True)
+
+        if text is not None:
+            with open(r"PyRun.py", "w", encoding="utf-8") as f:
+                f.write("from ctypes import OleDLL\nOleDLL('shcore').SetProcessDpiAwareness(1)\n{}".format(text))
+            with open(r"start.bat", "w", encoding="utf-8") as f:
+                f.write("@echo off\ntitle PyToka-Console\n{} PyRun.py\npause\nexit".format(pypath))
+            Popen(r"start start.bat", shell=True)
 
     def RunAndSave(self, text, mystring):
         if self.pythonfile is None:
