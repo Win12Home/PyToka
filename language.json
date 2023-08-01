@@ -23,7 +23,7 @@
   },
   "window_about": {
     "about_title": "About...",
-    "about_version": "0.0.2",
+    "about_version": "0.0.3-pre1",
     "about_author": ["是真的Win12Home","Win12_Home"],
     "about_license": "Mozilla Public License v2.0"
   },
@@ -59,7 +59,7 @@
   },
   "window_about": {
     "about_title": "关于...",
-    "about_version": "0.0.2",
+    "about_version": "0.0.3-pre1",
     "about_author": ["是真的Win12Home","Win12_Home"],
     "about_license": "Mozilla Public License v2.0"
   },
