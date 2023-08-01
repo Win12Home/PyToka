@@ -11,10 +11,10 @@ def initialize():
     try:
         with open("settings.json", "r", encoding="utf-8") as f:
             p = loads(f.read())
-        if p["info"]["PyToka_name"] != "PyToka v0.0.3-pre1":
+        if p["info"]["PyToka_name"] != "PyToka v0.0.3-pre2":
             with open("settings.json", "w", encoding="utf-8") as f:
                 p = {
-                    "info": {"PyToka_name": "PyToka v0.0.3-pre1", "language_name": "en_us", "pip_name": "pip"},
+                    "info": {"PyToka_name": "PyToka v0.0.3-pre2", "language_name": "en_us", "pip_name": "pip"},
                     "gui": {"window_size": "1280x768+100+50"},
                     "run": {"run_command": "PyToka_console.exe", "python_prompt": "pykw"},
                     "theme": {"edit_font": "Consolas", "win11-theme": False}
@@ -23,7 +23,7 @@ def initialize():
     except IOError:
         with open("settings.json", "w", encoding="utf-8") as f:
             p = {
-                "info": {"PyToka_name": "PyToka v0.0.3-pre1", "language_name": "en_us", "pip_name": "pip"},
+                "info": {"PyToka_name": "PyToka v0.0.3-pre2", "language_name": "en_us", "pip_name": "pip"},
                 "gui": {"window_size": "1280x768+100+50"},
                 "run": {"run_command": "PyToka_console.exe", "python_prompt": "pykw"},
                 "theme": {"edit_font": "Consolas", "win11-theme": False}
@@ -115,6 +115,8 @@ else:
             self.text = Text(self, height=114514, width=1919810, font=(json_data["theme"]["edit_font"], 11), spacing3=6,
                              spacing1=2,
                              spacing2=7, wrap=NONE)
+            self.text.bind("<Key-'>",lambda e:self.text.insert(INSERT,"'"))
+            self.text.bind('<Key-">',lambda e:self.text.insert(INSERT,'"'))
             self.text.pack(side="left", fill="both")
             self.text.bind("<Return>", self.enter)
 
@@ -144,7 +146,6 @@ else:
                                           command=lambda: self._window_about(string["window_about"]))
             self.setting_menu.add_cascade(label=string["gui_setting"],
                                           command=lambda: self._window_setting(string["window_setup"], string))
-            self.setting_menu.add_cascade(label="PIP",command=lambda: self.pip_menu())
             self.info_menu = Menu(self.menu, tearoff=False)
             self.info_menu.add_command(label=string["gui_info_words"],
                                        command=lambda: showinfo(string["message_info_title"],
@@ -326,11 +327,11 @@ else:
                     else:
                         break
                 self.i = i
-                if c.strip() == "break" or c.strip() == "return" or c.strip() == "pass" or c.strip() == "continue" or c.strip() == "]" or c.strip() == "}" or c.strip() == "]":
+                if c.strip() == "break" or c.strip() == "return" or c.strip() == "pass" or c.strip() == "continue" or c.strip() == "]" or c.strip() == "}" or c.strip() == "]" or c.strip() == ")":
                     self.i -= 1
-            self.text.insert("insert", "\n")
+            self.text.insert(INSERT, "\n")
             for j in range(self.i):
-                self.text.insert("insert", "    ")
+                self.text.insert(INSERT, "    ")
             return "break"
 
         def SetPython(self, mystring):
@@ -438,9 +439,9 @@ else:
                 with open(r"{}".format(self.pythonfile), "w+", encoding="utf-8") as f:
                     f.write(text)
 
-        def runcommand(self, text, pypath):
+        def runcommand(self, text, pypath, querydev=None):
 
-            if text is not None:
+            if text is not None and querydev is not None:
                 text=text.replace("//","#") #好没用啊
                 text=text.replace("/*",'"""')
                 text=text.replace("*/",'"""')
@@ -448,6 +449,21 @@ else:
                     f.write("from ctypes import OleDLL\nOleDLL('shcore').SetProcessDpiAwareness(1)\n{}".format(text))
                 with open(r"start.bat", "w", encoding="utf-8") as f:
                     f.write("@echo off\ntitle PyToka-Console\n{} PyRun.py\npause\nexit".format(pypath))
+                Popen(r"start start.bat", shell=True)
+            elif text is not None and querydev:
+                text = text.replace("//", "#")  # 好没用啊
+                text = text.replace("/*", '"""')
+                text = text.replace("*/", '"""')
+                if querydev is not None:
+                    with open(r"{}".format(querydev), "w", encoding="utf-8") as f:
+                        f.write("from ctypes import OleDLL\nOleDLL('shcore').SetProcessDpiAwareness(1)\n{}".format(text))
+                    with open(r"start.bat", "w", encoding="utf-8") as f:
+                        f.write("@echo off\ntitle PyToka-Console\n{} {}\npause\nexit".format(pypath,querydev))
+                elif querydev is None:
+                    with open(r"PyRun.py","w",encoding="utf-8") as f:
+                        f.write("from ctypes import OleDLL\nOleDLL('shcore').SetProcessDpiAwareness(1)\n{}".format(text))
+                    with open(r"start.bat","w",encoding="utf-8") as f:
+                        f.write("@echo off\ntitle PyToka-Console\n{} PyRun.py\npause\nexit".format(pypath))
                 Popen(r"start start.bat", shell=True)
 
         def RunAndSave(self, text, mystring):
@@ -460,12 +476,12 @@ else:
                     self.wm_title("PyToka-{}".format(self.pythonfile))
                     with open(r"{}".format(self.pythonfile), "w+", encoding="utf-8") as f:
                         f.write(text)
-                    self.runcommand(text, json_data["run"]["python_prompt"])
+                    self.runcommand(text, json_data["run"]["python_prompt"],querydev=self.pythonfile)
                 else:
                     showerror(title=mystring["message_info_title"], message=mystring["message_warning_filewarning"])
             else:
                 with open(r"{}".format(self.pythonfile), "w+", encoding="utf-8") as f:
                     f.write(text)
-                self.runcommand(text, json_data["run"]["python_prompt"])
+                self.runcommand(text, json_data["run"]["python_prompt"],querydev=self.pythonfile)
 
     PyToka(my_language).mainloop()
